@@ -8,13 +8,25 @@ import  LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined'
 import  SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'
 import  NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined'
 
-import  PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
 import SearchIcon from "@mui/icons-material/Search";
+import { AuthContext } from '../../context/auth';
 
 export const Topbar = () =>{
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
     const colorMode = useContext(ColorModeContext);
+    const { signOut} = useContext(AuthContext);
+
+    const delay = ms => new Promise(
+      resolve => setTimeout(resolve, ms)
+    );
+
+    const handleClick = async event => {
+      await delay(1000);
+    
+      signOut();
+    };
 
     return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -45,7 +57,7 @@ export const Topbar = () =>{
             <SettingsOutlinedIcon />
           </IconButton>
           <IconButton>
-            <PersonOutlinedIcon />
+            <LogoutOutlinedIcon onClick={handleClick} />
           </IconButton>
       </Box>
         

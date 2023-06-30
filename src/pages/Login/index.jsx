@@ -1,17 +1,29 @@
 
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { useContext, useState } from 'react';
 import imgGraphic from '../../assets/bar-graphic.png'
 
 import { LayoutComponents } from '../../components/LayoutComponents';
+import { AuthContext } from '../../context/auth';
 
 export const Login = () => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const { signIn, signed } = useContext(AuthContext);
+
+    const handleSignIn = async (e) => {
+        e.preventDefault();
+        
+        await signIn(email, password);
+    } 
+
+    if(signed) {
+        return <Navigate to="/dashboard"/>
+    } else {
 
     return (
         <LayoutComponents>
-            <form className="login-form">
+            <form onSubmit={handleSignIn} className="login-form">
                 <span className="login-form-title"></span>
                 <span className="login-form-title">
                     <img src={imgGraphic} alt="Grafico"></img>
@@ -28,7 +40,7 @@ export const Login = () => {
                 </div>
 
                 <div className="container-login-form-btn">
-                    <button className="login-form-btn"><strong>Login</strong></button>
+                    <button type="submit" className="login-form-btn"><strong>Login</strong></button>
                 </div>
 
                 <div className="div-routes">
@@ -38,4 +50,5 @@ export const Login = () => {
             </form>
         </LayoutComponents>
     );
+   }
 }

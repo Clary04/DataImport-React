@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { LayoutComponents } from "../../components/LayoutComponents";
 import { useState } from "react";
+import { api } from '../../services/api';
 
 export const Register = () => {
     const [email, setEmail] = useState("")
@@ -8,10 +9,35 @@ export const Register = () => {
     const [nameUser, setNameUser] = useState("")
     const [address, setAddress] = useState("")
     const [occupation, setOccupation] = useState("")
+    const [registered, setRegistered] = useState(null)
+
+    const handleSaveUser = async (e) => {
+       e.preventDefault();
+
+        const data = {
+            nameUser, 
+            email, 
+            address,
+            occupation,
+            password
+        }
+
+        const response = await api.post("/users", data);
+       
+        if(response.data.user == null){
+            alert("Erro ao cadastrar usuário");
+        }else{
+            setRegistered(true);
+        }
+    }
+
+    if(registered){
+        return <Navigate to="/"/>
+    }
 
     return (
         <LayoutComponents>
-             <form className="login-form">
+             <form onSubmit={handleSaveUser} className="login-form">
                 <span className="login-form-title">Criar Conta</span>
             
                 <div className="wrap-input">
@@ -40,7 +66,7 @@ export const Register = () => {
                 </div>
 
                 <div className="container-login-form-btn">
-                    <button className="login-form-btn"><strong>Registrar Conta</strong></button>
+                    <button type="submit" className="login-form-btn"><strong>Registrar Conta</strong></button>
                 </div>
 
                 <div className="div-routes">
