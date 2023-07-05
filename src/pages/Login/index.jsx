@@ -20,7 +20,6 @@ export const Login = () => {
     if(signed) {
         return <Navigate to="/dashboard"/>
     } else {
-
     return (
         <LayoutComponents>
             <form onSubmit={handleSignIn} className="login-form">

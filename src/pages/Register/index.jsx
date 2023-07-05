@@ -1,7 +1,8 @@
 import { Link, Navigate } from 'react-router-dom';
 import { LayoutComponents } from "../../components/LayoutComponents";
-import { useState } from "react";
+import { useState, createContext } from "react";
 import { api } from '../../services/api';
+import { toast } from 'react-toastify';
 
 export const Register = () => {
     const [email, setEmail] = useState("")
@@ -10,6 +11,18 @@ export const Register = () => {
     const [address, setAddress] = useState("")
     const [occupation, setOccupation] = useState("")
     const [registered, setRegistered] = useState(null)
+
+    const handleError = () => {
+        toast.error('Erro ao cadastrar usuário');
+    }
+
+    const handleWarnUserExists = () => {
+        toast.warn('Usuário existente, tente novamente');
+    }
+
+    const handleWarnRequired = () => {
+        toast.warn('Os campos de nome, email e senha são obrigatórios');
+    }
 
     const handleSaveUser = async (e) => {
        e.preventDefault();
@@ -24,8 +37,18 @@ export const Register = () => {
 
         const response = await api.post("/users", data);
        
-        if(response.data.user == null){
-            alert("Erro ao cadastrar usuário");
+        if(!response.data.user){
+
+            if(response.data.error){
+
+                if(response.data.error === "user exists"){
+                    return handleWarnUserExists();
+                }else if(response.data.error === "email, name and password are required"){
+                    return handleWarnRequired();
+                }else{
+                    return handleError();
+            }      
+        }                    
         }else{
             setRegistered(true);
         }
