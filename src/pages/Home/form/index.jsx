@@ -1,7 +1,9 @@
-import { Box, Button, TextField, useTheme} from "@mui/material"
+import { Box, Button, TextField, Select, FormControl, MenuItem, InputLabel, FormHelperText, useTheme} from "@mui/material"
 import { Formik } from "formik"
 import * as yup from "yup"
 import useMediaQuery from "@mui/material/useMediaQuery"
+import { api } from '../../../services/api';
+import { toast } from 'react-toastify';
 
 import { Home } from "../../../components/HomeLayoutComponents/Home"
 import { Header } from "../../../components/Header"
@@ -9,10 +11,44 @@ import { Header } from "../../../components/Header"
 export const Form = () => {
     const isNonMobile = useMediaQuery("(min-width:600px)");
     const theme = useTheme();
-    
-    const handleFormSubmit = (values) => {
-        console.log(values);
+
+    const delay = ms => new Promise(
+        resolve => setTimeout(resolve, ms)
+      );   
+
+    const handleError = () => {
+        toast.error('Erro ao registrar membro');
     }
+
+    const handleWarnUserExists = () => {
+        toast.warn('Membro já cadastrado, tente novamente');
+    }
+
+    const handleSuccess = () => {
+        toast.success('Membro cadastrado com sucesso');
+    }
+    
+    const handleFormSubmit = async (values) => {
+        console.log(values);
+
+        const response = await api.post("/members", values);
+        console.log(response.data);
+        if(!response.data.user){
+
+            if(response.data.error){
+
+                if(response.data.error === "user exists"){
+                    return handleWarnUserExists();
+                }else{
+                    return handleError();
+            }      
+        }
+    }
+
+    handleSuccess();
+    delay(1000);
+    window.location.reload();
+}
 
     return(
     <Home>
@@ -89,6 +125,39 @@ export const Form = () => {
                          sx={{ gridColumn: "span 2"}}>
                         </TextField>
 
+                        <TextField
+                         fullWidth
+                         variant="filled"
+                         label="Contato"
+                         type="text"
+                         onBlur={handleBlur}
+                         onChange={handleChange}
+                         value={values.contact}
+                         name="contact"
+                         error={!!touched.contact && !!errors.contact}
+                         helperText={touched.contact && errors.contact}
+                         sx={{ gridColumn: "span 1"}}>
+                        </TextField>
+
+                        <FormControl fullWidth variant="filled" sx={{ gridColumn: 'span 1' }}>
+                            <InputLabel id="acesso-label">Selecione o tipo de acesso</InputLabel>
+                            <Select
+                                labelId="acesso-label"
+                                id="access"
+                                name="access"
+                                value={values.access}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={!!touched.access && !!errors.access}
+                            >
+                                <MenuItem value="admin">Admin</MenuItem>
+                                <MenuItem value="manager">Manager</MenuItem>
+                                <MenuItem value="user">User</MenuItem>
+                            </Select>
+                            {touched.access && errors.access && (
+                                <FormHelperText error>{errors.access}</FormHelperText>
+                            )}
+                        </FormControl>
 
                         <TextField
                          fullWidth
@@ -103,21 +172,6 @@ export const Form = () => {
                          helperText={touched.email && errors.email}
                          sx={{ gridColumn: "span 2"}}>
                         </TextField>
-
-                        <TextField
-                         fullWidth
-                         variant="filled"
-                         label="Contato"
-                         type="text"
-                         onBlur={handleBlur}
-                         onChange={handleChange}
-                         value={values.contact}
-                         name="contact"
-                         error={!!touched.contact && !!errors.contact}
-                         helperText={touched.contact && errors.contact}
-                         sx={{ gridColumn: "span 2"}}>
-                        </TextField>
-
                         </Box>
 
                         <Box 
@@ -132,6 +186,7 @@ export const Form = () => {
                                 Adicionar novo membro
                             </Button>
                         </Box>
+
                     </form>
                  )}
             </Formik>
@@ -147,6 +202,7 @@ const initialValues = {
     contact: "",
     occupation: "",
     address: "",
+    access: "",
 }
 
 const phoneRegExp = /^((\+[1-9]{1,4}[ -]?)|(\([0-9]{2,3}\)[ -]?)|([0-9]{2,4})[ -]?)*?[0-9]{3,4}[ -]?[0-9]{3,4}$/;
@@ -158,4 +214,6 @@ const userSchema = yup.object().shape({
     contact: yup.string().matches(phoneRegExp, "Númmero de telefone inválido").required("Campo obrigatório."),
     occupation: yup.string().required("Campo obrigatório."),
     address: yup.string().required("Campo obrigatório."),
+    access: yup.string().required("Campo obrigatório."),
+
 })

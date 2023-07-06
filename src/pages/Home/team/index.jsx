@@ -1,7 +1,9 @@
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, useTheme} from "@mui/material"
 import { DataGrid } from "@mui/x-data-grid"
 import { tokens } from "../../../theme"
 import { mockDataTeam } from "../../../dataMock/mockData"
+import { api } from '../../../services/api';
 
 import { Home } from "../../../components/HomeLayoutComponents/Home"
 import { Header } from "../../../components/Header"
@@ -11,28 +13,43 @@ import  LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined"
 import  SecurityOutlinedIcon  from "@mui/icons-material/SecurityOutlined"
 
 export const Team = () => {
+    const [data, setData] = useState(null);
 
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
+    
+    useEffect(() => {
+        handleMembers().then(result => {
+        const dataWithIds = result.map((row, index) => ({ ...row, id: index + 1 })); 
+        setData(dataWithIds);
+        }).catch(error => {
+          console.error('Erro ao buscar dados:', error);
+        });
+      }, []); 
+    
+    const handleMembers = async () => {
+        const response = await api.get("/members");
+       return response.data;
+    }
 
     const columns = 
-    [{field: "id", headerName: "ID"},
+    [
      {
-     field: "name", 
+     field: "firstName", 
      headerName: "Name", 
      flex: 1,
      cellClassName: "name-column--cell"
     },
     {
-     field: "age", 
-     headerName: "Age", 
+     field: "contact", 
+     headerName: "Phone Number", 
      type: "number",
      headerAlign: "left",
      align: "left"
     },
     {
-        field: "phone", 
-        headerName: "Phone Number", 
+        field: "occupation", 
+        headerName: "Occupation", 
         flex: 1
     },
     {
@@ -69,6 +86,11 @@ export const Team = () => {
     },
     ]
 
+    // Verifica se os dados foram carregados
+    if (!data) {
+    return <div>Carregando...</div>;
+    }
+
     return(
         <Home>
             <Box m="20px">
@@ -94,7 +116,7 @@ export const Team = () => {
                         }
                     }}>
                     <DataGrid
-                    rows={mockDataTeam}
+                    rows={data}
                     columns={columns}
                     >
                     </DataGrid>

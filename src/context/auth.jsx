@@ -52,7 +52,7 @@ export const AuthProvider = ({children}) => {
                 setUser(response.data.user);
                 api.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
                 localStorage.setItem("@Auth:token", response.data.token);
-                localStorage.setItem("@Auth:user", response.data.user);
+                localStorage.setItem("@Auth:user", JSON.stringify(response.data.user));
             }else{
                 return handleError();
             }
