@@ -54,7 +54,7 @@ export const AppRoutes = () => {
             <Route path="/geo-chart" element={<PrivateRoute/>}>
                 <Route path="/geo-chart" element={<Geography/>} ></Route>
             </Route>
-            
+        
             </Routes>
         </Router>
     );
